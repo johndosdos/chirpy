@@ -5,8 +5,7 @@ import (
 	"net/http"
 )
 
-func Check() {
-	mux := http.NewServeMux()
+func Check(mux *http.ServeMux) {
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		/*
 			http.ResponseWriter handles the response that our server sends back
