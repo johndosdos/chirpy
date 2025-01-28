@@ -4,13 +4,18 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/health"
 )
 
 func main() {
 	mux := http.NewServeMux()
 
-	fileServer := http.FileServer(http.Dir("web/"))
-	mux.Handle("/", fileServer)
+	// check file server readiness.
+	health.Check(mux)
+
+	fileServer := http.StripPrefix("/app/", http.FileServer(http.Dir("web/")))
+	mux.Handle("/app/", fileServer)
 
 	server := http.Server{
 		Addr:    ":8080",
