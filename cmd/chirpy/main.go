@@ -22,8 +22,8 @@ func main() {
 	fileServer := http.StripPrefix("/app/", http.FileServer(http.Dir("web/")))
 
 	mux.Handle("/app/", apiCfg.MiddlewareMetricsInc(fileServer))
-	mux.Handle("GET /api/metrics", metric.GetHits(apiCfg))
-	mux.Handle("POST /api/reset", metric.ResetMetrics(apiCfg))
+	mux.Handle("GET /admin/metrics", metric.GetHits(apiCfg))
+	mux.Handle("POST /admin/reset", metric.ResetMetrics(apiCfg))
 
 	server := http.Server{
 		Addr:    ":8080",
