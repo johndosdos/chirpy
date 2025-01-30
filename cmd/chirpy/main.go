@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/johndosdos/chirpy/internal/app/chirpy"
-	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/health"
-	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/metric"
+	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/admin/health"
+	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/admin/metric"
 )
 
 func main() {
