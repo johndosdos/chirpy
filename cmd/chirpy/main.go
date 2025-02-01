@@ -35,8 +35,5 @@ func main() {
 	}
 
 	fmt.Println("Server starting at port 8080...")
-	err := server.ListenAndServe()
-	if err != nil {
-		log.Fatalf("failed to start server: %v", err)
-	}
+	log.Fatal(server.ListenAndServe())
 }
