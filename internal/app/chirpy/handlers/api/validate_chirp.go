@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func ValidateChirp() http.Handler {
@@ -31,6 +32,9 @@ func ValidateChirp() http.Handler {
 		if err != nil {
 			log.Print(err)
 		}
+
+		// then, sanitize the request body by checking for profanity.
+		sanitizedReq := sanitizeBody(req.Body)
 
 		// then, return a 400 http error (bad request) if char > 140. else,
 		// return 200 (OK)
@@ -61,4 +65,28 @@ func ValidateChirp() http.Handler {
 		}
 
 	})
+}
+
+func sanitizeBody(body string) string {
+	// the reason for using structs as values is because nil structs
+	// don't allocate memory. bool as values, on the other hand, will
+	// allocate memory. we only need this map for existence checks.
+	// also maps have fast lookups.
+
+	// profane words with punctuations are not sanitized.
+	profanityMap := map[string]struct{}{
+		"kerfuffle": {},
+		"sharbert":  {},
+		"fornax":    {},
+	}
+
+	splitBody := strings.Fields(body)
+	for pos, word := range splitBody {
+		loword := strings.ToLower(word)
+		if _, ok := profanityMap[loword]; ok {
+			splitBody[pos] = "****"
+		}
+	}
+
+	return strings.Join(splitBody, " ")
 }
