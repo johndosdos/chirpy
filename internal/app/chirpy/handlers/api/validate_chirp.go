@@ -15,8 +15,8 @@ func ValidateChirp() http.Handler {
 		// valid or invalid; true or false and http status codes.
 
 		type response struct {
-			Error string `json:"error"`
-			Valid bool   `json:"valid"`
+			Error        string `json:"error"`
+			Cleaned_body string `json:"cleaned_body"`
 		}
 
 		type request struct {
