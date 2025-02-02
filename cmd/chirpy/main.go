@@ -9,6 +9,8 @@ import (
 	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/admin/health"
 	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/admin/metric"
 	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/api"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
