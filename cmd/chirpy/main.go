@@ -1,21 +1,46 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/johndosdos/chirpy/internal/app/chirpy"
 	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/admin/health"
 	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/admin/metric"
 	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/api"
+	"github.com/johndosdos/chirpy/internal/database"
+	"github.com/joho/godotenv"
 
 	_ "github.com/lib/pq"
 )
 
 func main() {
+	// DATABASE INIT...
+
+	// Load .env file from project root. Our .env file contain sensitive
+	// keys and information. Please add to .gitignore
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("failed to load .env file: ", err)
+	}
+
+	dbUrl := os.Getenv("DB_URL")
+
+	db, err := sql.Open("postgres", dbUrl)
+	if err != nil {
+		log.Fatal("failed to initialize db: ", err)
+	}
+
+	dbQueries := database.New(db)
+
+	// SERVER INIT...
 	mux := http.NewServeMux()
-	apiCfg := &chirpy.ApiConfig{}
+	apiCfg := &chirpy.ApiConfig{
+		DB: dbQueries,
+	}
 
 	// check file server readiness.
 	health.Check(mux)
