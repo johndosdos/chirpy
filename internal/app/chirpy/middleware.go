@@ -3,10 +3,13 @@ package chirpy
 import (
 	"net/http"
 	"sync/atomic"
+
+	"github.com/johndosdos/chirpy/internal/database"
 )
 
 type ApiConfig struct {
 	FileserverHits atomic.Int32
+	DB             *database.Queries
 }
 
 // incerment fileserverHits counter everytime a client visits the server,
