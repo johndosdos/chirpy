@@ -41,12 +41,12 @@ func ValidateChirp() http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 
 		// AVOID MAGIC NUMBERS, i.e., MAX_CHAR_LEN
-		if len(req.Body) <= MAX_CHAR_LEN {
+		if len(sanitizedReq) <= MAX_CHAR_LEN {
 			w.WriteHeader(http.StatusOK)
 
 			encoder := json.NewEncoder(w)
 			err := encoder.Encode(response{
-				Valid: true,
+				Cleaned_body: sanitizedReq,
 			})
 			if err != nil { // check/revise error handling !!
 				log.Print(err)
@@ -56,8 +56,8 @@ func ValidateChirp() http.Handler {
 
 			encoder := json.NewEncoder(w)
 			err := encoder.Encode(response{
-				Error: "Chirp is too long. Max character length is 140.",
-				Valid: false,
+				Error:        "Chirp is too long. Max character length is 140.",
+				Cleaned_body: sanitizedReq,
 			})
 			if err != nil { // check/revise error handling !!
 				log.Print(err)
