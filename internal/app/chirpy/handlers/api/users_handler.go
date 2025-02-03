@@ -1,4 +1,4 @@
-package users
+package api
 
 import (
 	"encoding/json"

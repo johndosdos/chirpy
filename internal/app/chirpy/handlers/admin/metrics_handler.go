@@ -1,4 +1,4 @@
-package metric
+package admin
 
 import (
 	"fmt"

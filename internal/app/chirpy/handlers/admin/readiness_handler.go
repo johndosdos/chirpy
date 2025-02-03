@@ -1,4 +1,4 @@
-package health
+package admin
 
 import (
 	"log"
