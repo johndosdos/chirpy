@@ -29,6 +29,7 @@ func main() {
 	}
 
 	dbUrl := os.Getenv("DB_URL")
+	platform := os.Getenv("PLATFORM")
 
 	db, err := sql.Open("postgres", dbUrl)
 	if err != nil {
@@ -40,7 +41,8 @@ func main() {
 	// SERVER INIT...
 	mux := http.NewServeMux()
 	apiCfg := &chirpy.ApiConfig{
-		DB: dbQueries,
+		DB:       dbQueries,
+		Platform: platform,
 	}
 
 	// check file server readiness.

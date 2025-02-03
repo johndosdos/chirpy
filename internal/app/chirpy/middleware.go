@@ -10,6 +10,7 @@ import (
 type ApiConfig struct {
 	FileserverHits atomic.Int32
 	DB             *database.Queries
+	Platform       string
 }
 
 // incerment fileserverHits counter everytime a client visits the server,

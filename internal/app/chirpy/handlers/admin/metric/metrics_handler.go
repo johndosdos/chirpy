@@ -33,11 +33,15 @@ func GetHits(cfg *chirpy.ApiConfig) http.Handler {
 
 func ResetMetrics(cfg *chirpy.ApiConfig) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg.FileserverHits.Store(0)
-
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
+		if cfg.Platform != "dev" {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
 		w.WriteHeader(http.StatusOK)
 
+		cfg.FileserverHits.Store(0)
 		serverHits := cfg.FileserverHits.Load()
 		fmt.Fprintf(w, "Hits: %d\n", serverHits)
 
