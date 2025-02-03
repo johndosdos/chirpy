@@ -55,7 +55,7 @@ func main() {
 	mux.Handle("GET /admin/metrics", admin.GetHits(apiCfg))
 	mux.Handle("POST /admin/reset", admin.ResetMetrics(apiCfg))
 
-	mux.Handle("POST /api/validate_chirp", api.ValidateChirp())
+	mux.Handle("POST /api/chirps", api.ValidateChirp())
 	mux.Handle("POST /api/users", api.CreateUser(apiCfg))
 
 	server := http.Server{
