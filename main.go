@@ -11,6 +11,7 @@ import (
 	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/admin/health"
 	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/admin/metric"
 	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/api"
+	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/api/users"
 	"github.com/johndosdos/chirpy/internal/database"
 	"github.com/joho/godotenv"
 
@@ -55,6 +56,7 @@ func main() {
 	mux.Handle("POST /admin/reset", metric.ResetMetrics(apiCfg))
 
 	mux.Handle("POST /api/validate_chirp", api.ValidateChirp())
+	mux.Handle("POST /api/users", users.CreateUser(apiCfg))
 
 	server := http.Server{
 		Addr:    ":8080",
