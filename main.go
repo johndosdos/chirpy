@@ -8,10 +8,8 @@ import (
 	"os"
 
 	"github.com/johndosdos/chirpy/internal/app/chirpy"
-	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/admin/health"
-	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/admin/metric"
+	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/admin"
 	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/api"
-	"github.com/johndosdos/chirpy/internal/app/chirpy/handlers/api/users"
 	"github.com/johndosdos/chirpy/internal/database"
 	"github.com/joho/godotenv"
 
@@ -46,7 +44,7 @@ func main() {
 	}
 
 	// check file server readiness.
-	health.Check(mux)
+	admin.Check(mux)
 
 	// strip the prefix "/app/" from the URL path for proper routing.
 	// URL path != file path on the server.
@@ -54,11 +52,11 @@ func main() {
 
 	mux.Handle("/app/", apiCfg.MiddlewareMetricsInc(fileServer))
 
-	mux.Handle("GET /admin/metrics", metric.GetHits(apiCfg))
-	mux.Handle("POST /admin/reset", metric.ResetMetrics(apiCfg))
+	mux.Handle("GET /admin/metrics", admin.GetHits(apiCfg))
+	mux.Handle("POST /admin/reset", admin.ResetMetrics(apiCfg))
 
 	mux.Handle("POST /api/validate_chirp", api.ValidateChirp())
-	mux.Handle("POST /api/users", users.CreateUser(apiCfg))
+	mux.Handle("POST /api/users", api.CreateUser(apiCfg))
 
 	server := http.Server{
 		Addr:    ":8080",
