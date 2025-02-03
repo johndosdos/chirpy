@@ -2,6 +2,7 @@ package metric
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/johndosdos/chirpy/internal/app/chirpy"
@@ -39,5 +40,17 @@ func ResetMetrics(cfg *chirpy.ApiConfig) http.Handler {
 
 		serverHits := cfg.FileserverHits.Load()
 		fmt.Fprintf(w, "Hits: %d\n", serverHits)
+
+		// reset users table
+		resetUsersDb(cfg, w, r)
 	})
+}
+
+func resetUsersDb(cfg *chirpy.ApiConfig, w http.ResponseWriter, r *http.Request) {
+	err := cfg.DB.DeleteUsers(r.Context())
+	if err != nil {
+		log.Println("failed to reset users table: ", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
