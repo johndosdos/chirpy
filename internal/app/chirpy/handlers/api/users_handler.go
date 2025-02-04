@@ -10,20 +10,20 @@ import (
 	"github.com/johndosdos/chirpy/internal/app/chirpy"
 )
 
-type request struct {
-	Email string `json:"email"`
-}
-
-type response struct {
-	Id        uuid.UUID `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Email     string    `json:"email"`
-}
-
 // CreateUser expects an email json field from the http request.
 func CreateUser(cfg *chirpy.ApiConfig) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		type request struct {
+			Email string `json:"email"`
+		}
+
+		type response struct {
+			Id        uuid.UUID `json:"id"`
+			CreatedAt time.Time `json:"created_at"`
+			UpdatedAt time.Time `json:"updated_at"`
+			Email     string    `json:"email"`
+		}
+
 		var req request
 
 		// parse and decode request.
