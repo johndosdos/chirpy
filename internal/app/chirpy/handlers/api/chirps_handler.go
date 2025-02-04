@@ -5,9 +5,10 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"github.com/johndosdos/chirpy/internal/app/chirpy"
 )
 
-func ProcessChirp() http.Handler {
+func ProcessChirp(cfg *chirpy.ApiConfig) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// encode a go struct to json using json.Marshal.
 
