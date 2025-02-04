@@ -43,7 +43,8 @@ func ProcessChirp(cfg *chirpy.ApiConfig) http.Handler {
 		}
 
 		// then, sanitize the request body by checking for profanity.
-		sanitizedReq := sanitizeBody(req.Body)
+		sanitizedBody := sanitizeBody(req.Body)
+		req.Body = sanitizedBody
 
 		// then, return a 400 http error (bad request) if char > 140. else,
 		// return 200 (OK)
