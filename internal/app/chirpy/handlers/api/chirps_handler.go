@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func ValidateChirp() http.Handler {
+func ProcessChirp() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// encode a go struct to json using json.Marshal.
 
