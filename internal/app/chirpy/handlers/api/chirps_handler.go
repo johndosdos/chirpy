@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/johndosdos/chirpy/internal/app/chirpy"
+	"github.com/johndosdos/chirpy/internal/database"
 )
 
 func ProcessChirp(cfg *chirpy.ApiConfig) http.Handler {
@@ -34,6 +35,17 @@ func ProcessChirp(cfg *chirpy.ApiConfig) http.Handler {
 
 		const MAX_CHAR_LEN = 140
 		var req request
+		var storeToDb = func(req *request) (database.Chirp, error) {
+			chirp, err := cfg.DB.AddChirp(r.Context(), database.AddChirpParams{
+				Body:   req.Body,
+				UserID: req.UserId,
+			})
+			if err != nil {
+				return database.Chirp{}, err
+			}
+
+			return chirp, nil
+		}
 
 		// first, decode request body
 		decoder := json.NewDecoder(r.Body)
@@ -51,12 +63,26 @@ func ProcessChirp(cfg *chirpy.ApiConfig) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 
 		// AVOID MAGIC NUMBERS, i.e., MAX_CHAR_LEN
-		if len(sanitizedReq) <= MAX_CHAR_LEN {
-			w.WriteHeader(http.StatusOK)
+		if len(sanitizedBody) <= MAX_CHAR_LEN {
+
+			// save to databse
+			chirp, err := storeToDb(&req)
+			if err != nil {
+				log.Println("Unexpected error: ", err)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			//  send response
+			w.WriteHeader(http.StatusCreated)
 
 			encoder := json.NewEncoder(w)
-			err := encoder.Encode(response{
-				Cleaned_body: sanitizedReq,
+			err = encoder.Encode(response{
+				Id:         chirp.ID,
+				Created_at: chirp.CreatedAt,
+				Updated_at: chirp.UpdatedAt,
+				UserId:     chirp.UserID,
+				Body:       chirp.Body,
 			})
 			if err != nil {
 				log.Println("Failed to encode response json: ", err)
