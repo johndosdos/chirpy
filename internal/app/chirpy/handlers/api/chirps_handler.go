@@ -5,6 +5,9 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
+
+	"github.com/google/uuid"
 	"github.com/johndosdos/chirpy/internal/app/chirpy"
 )
 
@@ -16,12 +19,17 @@ func ProcessChirp(cfg *chirpy.ApiConfig) http.Handler {
 		// valid or invalid; true or false and http status codes.
 
 		type response struct {
-			Error        string `json:"error"`
-			Cleaned_body string `json:"cleaned_body"`
+			Id         uuid.UUID `json:"id"`
+			Created_at time.Time `json:"created_at"`
+			Updated_at time.Time `json:"updated_at"`
+			UserId     uuid.UUID `json:"user_id"`
+			Body       string    `json:"body"`
+			Error      string    `json:"error"`
 		}
 
 		type request struct {
-			Body string `json:"body"`
+			Body   string    `json:"body"`
+			UserId uuid.UUID `json:"user_id"`
 		}
 
 		const MAX_CHAR_LEN = 140
