@@ -58,19 +58,23 @@ func ProcessChirp(cfg *chirpy.ApiConfig) http.Handler {
 			err := encoder.Encode(response{
 				Cleaned_body: sanitizedReq,
 			})
-			if err != nil { // check/revise error handling !!
-				log.Print(err)
+			if err != nil {
+				log.Println("Failed to encode response json: ", err)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
 			}
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
 
 			encoder := json.NewEncoder(w)
 			err := encoder.Encode(response{
-				Error:        "Chirp is too long. Max character length is 140.",
-				Cleaned_body: sanitizedReq,
+				Error: "Chirp is too long. Max character length is 140.",
+				Body:  sanitizedBody,
 			})
-			if err != nil { // check/revise error handling !!
-				log.Print(err)
+			if err != nil {
+				log.Println("Chirp is more than 140 chars: ", err)
+				http.Error(w, "Bad request", http.StatusBadRequest)
+				return
 			}
 		}
 
