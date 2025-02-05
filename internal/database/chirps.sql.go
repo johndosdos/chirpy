@@ -22,8 +22,8 @@ RETURNING id, created_at, updated_at, body, user_id
 `
 
 type AddChirpParams struct {
-	Body   string
-	UserID uuid.UUID
+	Body   string    `json:"body"`
+	UserID uuid.UUID `json:"user_id"`
 }
 
 func (q *Queries) AddChirp(ctx context.Context, arg AddChirpParams) (Chirp, error) {
