@@ -20,12 +20,12 @@ func ProcessChirp(cfg *chirpy.ApiConfig) http.Handler {
 		// valid or invalid; true or false and http status codes.
 
 		type response struct {
-			Id         uuid.UUID `json:"id"`
-			Created_at time.Time `json:"created_at"`
-			Updated_at time.Time `json:"updated_at"`
-			UserId     uuid.UUID `json:"user_id"`
-			Body       string    `json:"body"`
-			Error      string    `json:"error"`
+			Id        uuid.UUID `json:"id"`
+			CreatedAt time.Time `json:"created_at"`
+			UpdatedAt time.Time `json:"updated_at"`
+			UserId    uuid.UUID `json:"user_id"`
+			Body      string    `json:"body"`
+			Error     string    `json:"error"`
 		}
 
 		type request struct {
@@ -78,11 +78,11 @@ func ProcessChirp(cfg *chirpy.ApiConfig) http.Handler {
 
 			encoder := json.NewEncoder(w)
 			err = encoder.Encode(response{
-				Id:         chirp.ID,
-				Created_at: chirp.CreatedAt,
-				Updated_at: chirp.UpdatedAt,
-				UserId:     chirp.UserID,
-				Body:       chirp.Body,
+				Id:        chirp.ID,
+				CreatedAt: chirp.CreatedAt,
+				UpdatedAt: chirp.UpdatedAt,
+				UserId:    chirp.UserID,
+				Body:      chirp.Body,
 			})
 			if err != nil {
 				log.Println("Failed to encode response json: ", err)
