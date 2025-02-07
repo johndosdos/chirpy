@@ -8,13 +8,16 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/johndosdos/chirpy/internal/app/chirpy"
+	"github.com/johndosdos/chirpy/internal/auth"
+	"github.com/johndosdos/chirpy/internal/database"
 )
 
 // CreateUser expects an email json field from the http request.
 func CreateUser(cfg *chirpy.ApiConfig) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		type request struct {
-			Email string `json:"email"`
+			Email    string `json:"email"`
+			Password string `json:"password"`
 		}
 
 		type response struct {
@@ -39,9 +42,20 @@ func CreateUser(cfg *chirpy.ApiConfig) http.Handler {
 			return
 		}
 
+		// hash user password before storing to database
+		hashedPw, err := auth.HashPassword(req.Password)
+		if err != nil {
+			log.Println("Failed to hash password: ", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
 		// return http error 500 since the error is usually caused
 		// by the server.
-		user, err := cfg.DB.CreateUser(r.Context(), req.Email)
+		user, err := cfg.DB.CreateUser(r.Context(), database.CreateUserParams{
+			Email:          req.Email,
+			HashedPassword: hashedPw,
+		})
 		if err != nil {
 			log.Println("Unexpected error: ", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
