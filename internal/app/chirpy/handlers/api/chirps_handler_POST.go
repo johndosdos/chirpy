@@ -51,7 +51,9 @@ func ProcessChirp(cfg *chirpy.ApiConfig) http.Handler {
 		decoder := json.NewDecoder(r.Body)
 		err := decoder.Decode(&req)
 		if err != nil {
-			log.Print(err)
+			log.Print("Invalid request: ", err)
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
 		}
 
 		// then, sanitize the request body by checking for profanity.
