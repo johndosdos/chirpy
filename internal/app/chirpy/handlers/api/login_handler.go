@@ -14,8 +14,9 @@ import (
 func Login(cfg *chirpy.ApiConfig) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		type request struct {
-			Email    string `json:"email"`
-			Password string `json:"password"`
+			Email            string `json:"email"`
+			Password         string `json:"password"`
+			ExpiresInSeconds int    `json:"expires_in_seconds,omitempty"`
 		}
 
 		type response struct {
@@ -23,15 +24,26 @@ func Login(cfg *chirpy.ApiConfig) http.Handler {
 			CreatedAt time.Time `json:"created_at"`
 			UpdatedAt time.Time `json:"updated_at"`
 			Email     string    `json:"email"`
+			Token     string    `json:"token"`
 		}
 
 		var req request
+
+		// default expiration time if request ExpiresInSeconds is nil
+		//
+		// defaults to 3600 seconds or 1 hour
+		const DEFAULT_EXPIRATION int = 3600
 
 		// decode request
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			log.Println("Invalid request: ", err)
 			http.Error(w, "Bad request", http.StatusBadRequest)
 			return
+		}
+
+		// check request body if expires_in_seconds is nil or not
+		if req.ExpiresInSeconds <= 0 || req.ExpiresInSeconds > 3600 {
+			req.ExpiresInSeconds = DEFAULT_EXPIRATION
 		}
 
 		// get user info by email
@@ -49,6 +61,17 @@ func Login(cfg *chirpy.ApiConfig) http.Handler {
 			return
 		}
 
+		// generate JWT
+		//
+		// note that we need to multipy time.Duration by time.Second since
+		// time.Duration will convert to time in nanoseconds
+		jwt, err := auth.MakeJWT(user.ID, cfg.Secret, time.Duration(req.ExpiresInSeconds)*time.Second)
+		if err != nil {
+			log.Println("Unexpected error: ", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
@@ -58,6 +81,7 @@ func Login(cfg *chirpy.ApiConfig) http.Handler {
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
 			Email:     user.Email,
+			Token:     jwt,
 		}); err != nil {
 			log.Println("Unexpected error: ", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
