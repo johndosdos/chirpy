@@ -28,6 +28,7 @@ func main() {
 
 	dbUrl := os.Getenv("DB_URL")
 	platform := os.Getenv("PLATFORM")
+	secret := os.Getenv("SECRET")
 
 	db, err := sql.Open("postgres", dbUrl)
 	if err != nil {
@@ -41,6 +42,7 @@ func main() {
 	apiCfg := &chirpy.ApiConfig{
 		DB:       dbQueries,
 		Platform: platform,
+		Secret:   secret,
 	}
 
 	// check file server readiness.
