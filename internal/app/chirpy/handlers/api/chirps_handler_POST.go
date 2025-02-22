@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/johndosdos/chirpy/internal/app/chirpy"
+	"github.com/johndosdos/chirpy/internal/auth"
 	"github.com/johndosdos/chirpy/internal/database"
 )
 
@@ -55,6 +56,25 @@ func ProcessChirp(cfg *chirpy.ApiConfig) http.Handler {
 			http.Error(w, "Bad request", http.StatusBadRequest)
 			return
 		}
+
+		// then, parse HTTP request Authorization header
+		httpBearerToken, err := auth.GetBearerToken(r.Header)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		// then, validate JWT
+		userID, err := auth.ValidateJWT(httpBearerToken, cfg.Secret)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// then, set request user ID after JWT validation
+		req.UserId = userID
 
 		// then, sanitize the request body by checking for profanity.
 		sanitizedBody := sanitizeBody(req.Body)
