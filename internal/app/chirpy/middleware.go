@@ -11,6 +11,7 @@ type ApiConfig struct {
 	FileserverHits atomic.Int32
 	DB             *database.Queries
 	Platform       string
+	Secret         string
 }
 
 // incerment fileserverHits counter everytime a client visits the server,
