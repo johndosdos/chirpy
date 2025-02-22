@@ -3,6 +3,8 @@ package auth
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -82,4 +84,33 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 	}
 
 	return userID, nil
+}
+
+func GetBearerToken(headers http.Header) (string, error) {
+	// 1. get authorization header
+	authHeader := headers.Get("Authorization")
+	if authHeader == "" {
+		return "", errors.New("missing authorization header")
+	}
+
+	// 2. split auth header
+	// auth header looks like this:
+	// Authorization: <auth-scheme> <authorization-parameters>
+	//
+	// in this case, we are interested in the <Bearer> auth scheme
+	authSplit := strings.Fields(authHeader)
+	authScheme, authToken := authSplit[0], authSplit[1]
+
+	// 3. check auth scheme if it exists and if contains "Bearer"
+	// if checks pass, continue
+	if authScheme == "" || authScheme != "Bearer" {
+		return "", fmt.Errorf("unexpected authorizaton scheme or is nil: %v", authScheme)
+	}
+
+	// 4. check if auth token is not nil
+	if authToken == "" {
+		return "", errors.New("authorization token string is nil")
+	}
+
+	return authToken, nil
 }
