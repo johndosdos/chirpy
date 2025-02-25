@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/johndosdos/chirpy/internal/app/chirpy"
 	"github.com/johndosdos/chirpy/internal/auth"
+	"github.com/johndosdos/chirpy/internal/database"
 )
 
 func Login(cfg *chirpy.ApiConfig) http.Handler {
@@ -20,11 +21,12 @@ func Login(cfg *chirpy.ApiConfig) http.Handler {
 		}
 
 		type response struct {
-			ID        uuid.UUID `json:"id"`
-			CreatedAt time.Time `json:"created_at"`
-			UpdatedAt time.Time `json:"updated_at"`
-			Email     string    `json:"email"`
-			Token     string    `json:"token"`
+			ID           uuid.UUID `json:"id"`
+			CreatedAt    time.Time `json:"created_at"`
+			UpdatedAt    time.Time `json:"updated_at"`
+			Email        string    `json:"email"`
+			Token        string    `json:"token"`
+			RefreshToken string    `json:"refresh_token"`
 		}
 
 		var req request
@@ -66,6 +68,25 @@ func Login(cfg *chirpy.ApiConfig) http.Handler {
 		// note that we need to multipy time.Duration by time.Second since
 		// time.Duration will convert to time in nanoseconds
 		jwt, err := auth.MakeJWT(user.ID, cfg.Secret, time.Duration(req.ExpiresInSeconds)*time.Second)
+		// the access token (JWT)
+		//
+		// save refresh token to DB
+		//
+		// refresh token expire after 60 days
+		newRefreshToken, err := auth.MakeRefreshToken()
+		if err != nil {
+			log.Println("Unexpected error: ", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		refreshToken, err := cfg.DB.MakeRefreshToken(r.Context(), database.MakeRefreshTokenParams{
+			Token:     newRefreshToken,
+			CreatedAt: time.Now().UTC(),
+			UpdatedAt: time.Now().UTC(),
+			UserID:    user.ID,
+			ExpiresAt: time.Now().Add(60 * 24 * time.Hour),
+		})
 		if err != nil {
 			log.Println("Unexpected error: ", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -77,11 +98,12 @@ func Login(cfg *chirpy.ApiConfig) http.Handler {
 
 		// encode the response
 		if err := json.NewEncoder(w).Encode(response{
-			ID:        user.ID,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
-			Email:     user.Email,
-			Token:     jwt,
+			ID:           user.ID,
+			CreatedAt:    user.CreatedAt,
+			UpdatedAt:    user.UpdatedAt,
+			Email:        user.Email,
+			Token:        jwt,
+			RefreshToken: refreshToken.Token,
 		}); err != nil {
 			log.Println("Unexpected error: ", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
