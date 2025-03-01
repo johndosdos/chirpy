@@ -10,3 +10,8 @@ RETURNING *;
 -- name: GetUserFromRefreshToken :one
 SELECT * FROM refresh_tokens
 WHERE token = $1;
+
+-- name: UpdateRefreshToken :exec
+UPDATE refresh_tokens
+SET revoked_at = $1, updated_at = $2
+WHERE user_id = $3;

@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -67,4 +68,21 @@ func (q *Queries) MakeRefreshToken(ctx context.Context, arg MakeRefreshTokenPara
 		&i.RevokedAt,
 	)
 	return i, err
+}
+
+const updateRefreshToken = `-- name: UpdateRefreshToken :exec
+UPDATE refresh_tokens
+SET revoked_at = $1, updated_at = $2
+WHERE user_id = $3
+`
+
+type UpdateRefreshTokenParams struct {
+	RevokedAt sql.NullTime `json:"revoked_at"`
+	UpdatedAt time.Time    `json:"updated_at"`
+	UserID    uuid.UUID    `json:"user_id"`
+}
+
+func (q *Queries) UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error {
+	_, err := q.db.ExecContext(ctx, updateRefreshToken, arg.RevokedAt, arg.UpdatedAt, arg.UserID)
+	return err
 }
