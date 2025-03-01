@@ -6,3 +6,7 @@ VALUES (
     $1, $2, $3, $4, $5, CAST(NULL AS TIMESTAMP WITH TIME ZONE)
 )
 RETURNING *;
+
+-- name: GetUserFromRefreshToken :one
+SELECT * FROM refresh_tokens
+WHERE token = $1;
