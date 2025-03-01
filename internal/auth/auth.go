@@ -104,6 +104,9 @@ func GetBearerToken(headers http.Header) (string, error) {
 	//
 	// in this case, we are interested in the <Bearer> auth scheme
 	authSplit := strings.Fields(authHeader)
+	if len(authSplit) != 2 {
+		return "", fmt.Errorf("invalid authorization header format: %v", authSplit)
+	}
 	authScheme, authToken := authSplit[0], authSplit[1]
 
 	// 3. check auth scheme if it exists and if contains "Bearer"
