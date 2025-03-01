@@ -56,7 +56,12 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 	// audience is which resource server or API the JWT is intended for.
 	// subject is within the audience.
 
-	token, err := jwt.ParseWithClaims(
+	parser := jwt.NewParser(
+		jwt.WithIssuer("chirpy"),
+		jwt.WithTimeFunc(time.Now().UTC),
+	)
+
+	token, err := parser.ParseWithClaims(
 		tokenString,
 		&jwt.RegisteredClaims{},
 		func(token *jwt.Token) (interface{}, error) {
@@ -65,9 +70,7 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 			}
 
 			return []byte(tokenSecret), nil
-		},
-		jwt.WithIssuer("chirpy"),
-		jwt.WithTimeFunc(time.Now().UTC))
+		})
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to parse token: %w", err)
 	}
