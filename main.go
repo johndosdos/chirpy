@@ -62,6 +62,7 @@ func main() {
 	mux.Handle("POST /api/chirps", api.ProcessChirp(apiCfg))
 
 	mux.Handle("POST /api/users", api.CreateUser(apiCfg))
+	mux.Handle("PUT /api/users", api.UpdateUserInfo(apiCfg))
 
 	mux.Handle("POST /api/login", api.Login(apiCfg))
 
