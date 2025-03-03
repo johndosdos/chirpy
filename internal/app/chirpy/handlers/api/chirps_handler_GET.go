@@ -16,8 +16,8 @@ func GetChirp(cfg *chirpy.ApiConfig) http.Handler {
 		// using http.Request.PathValue.
 		chirpID, err := uuid.Parse(r.PathValue("chirpID"))
 		if err != nil {
-			log.Println(err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			log.Println("invalid chirp ID: ", err)
+			http.Error(w, "Bad request: invalid chirp ID format", http.StatusBadRequest)
 			return
 		}
 
