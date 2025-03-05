@@ -20,10 +20,11 @@ func UpdateUserInfo(cfg *chirpy.ApiConfig) http.Handler {
 		}
 
 		type response struct {
-			Id        uuid.UUID `json:"id"`
-			CreatedAt time.Time `json:"created_at"`
-			UpdatedAt time.Time `json:"updated_at"`
-			Email     string    `json:"email"`
+			Id          uuid.UUID `json:"id"`
+			CreatedAt   time.Time `json:"created_at"`
+			UpdatedAt   time.Time `json:"updated_at"`
+			Email       string    `json:"email"`
+			IsChirpyRed bool      `json:"is_chirpy_red"`
 		}
 
 		var req request
@@ -77,10 +78,11 @@ func UpdateUserInfo(cfg *chirpy.ApiConfig) http.Handler {
 		w.WriteHeader(http.StatusOK)
 
 		err = json.NewEncoder(w).Encode(response{
-			Id:        user.ID,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
-			Email:     user.Email,
+			Id:          user.ID,
+			CreatedAt:   user.CreatedAt,
+			UpdatedAt:   user.UpdatedAt,
+			Email:       user.Email,
+			IsChirpyRed: user.IsChirpyRed,
 		})
 		if err != nil {
 			log.Println("failed to encode server response: ", err)

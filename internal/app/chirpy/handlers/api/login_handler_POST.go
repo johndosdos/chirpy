@@ -26,6 +26,7 @@ func Login(cfg *chirpy.ApiConfig) http.Handler {
 			Email        string    `json:"email"`
 			Token        string    `json:"token"`
 			RefreshToken string    `json:"refresh_token"`
+			IsChirpyRed  bool      `json:"is_chirpy_red"`
 		}
 
 		var req request
@@ -102,6 +103,7 @@ func Login(cfg *chirpy.ApiConfig) http.Handler {
 			Email:        user.Email,
 			Token:        jwt,
 			RefreshToken: refreshToken.Token,
+			IsChirpyRed:  user.IsChirpyRed,
 		}); err != nil {
 			log.Println("Unexpected error: ", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
