@@ -71,6 +71,8 @@ func main() {
 
 	mux.Handle("POST /api/revoke", api.Revoke(apiCfg))
 
+	mux.Handle("POST /api/polka/webhooks", api.WebhookHandler(apiCfg))
+
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: mux,
