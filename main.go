@@ -29,6 +29,7 @@ func main() {
 	dbUrl := os.Getenv("DB_URL")
 	platform := os.Getenv("PLATFORM")
 	secret := os.Getenv("SECRET")
+	polkaKey := os.Getenv("POLKA_KEY")
 
 	db, err := sql.Open("postgres", dbUrl)
 	if err != nil {
@@ -43,6 +44,7 @@ func main() {
 		DB:       dbQueries,
 		Platform: platform,
 		Secret:   secret,
+		PolkaKey: polkaKey,
 	}
 
 	// check file server readiness.

@@ -12,6 +12,7 @@ type ApiConfig struct {
 	DB             *database.Queries
 	Platform       string
 	Secret         string
+	PolkaKey       string
 }
 
 // incerment fileserverHits counter everytime a client visits the server,
