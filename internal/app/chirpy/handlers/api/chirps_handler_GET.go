@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/johndosdos/chirpy/internal/app/chirpy"
+	"github.com/johndosdos/chirpy/internal/database"
 )
 
 func GetChirp(cfg *chirpy.ApiConfig) http.Handler {
@@ -51,7 +52,6 @@ func GetChirp(cfg *chirpy.ApiConfig) http.Handler {
 
 func GetChirps(cfg *chirpy.ApiConfig) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		// get data from db
 		chirps, err := cfg.DB.GetChirps(r.Context())
 		if err != nil {
@@ -63,9 +63,36 @@ func GetChirps(cfg *chirpy.ApiConfig) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
-		// encode []chirps directly to w
+		// extract optional query parameter 'author_id' from URL
+		authorID := r.URL.Query().Get("author_id")
+
+		// return the array of chirps if author_id is nil
+		if authorID == "" {
+			// encode []chirps directly to w
+			encoder := json.NewEncoder(w)
+			err = encoder.Encode(chirps)
+			if err != nil {
+				log.Println("Failed to encode response json: ", err)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+			}
+			return
+		}
+
+		// return single chirp if author_id is not nil
+		//
+		// in case of multiple chirps with the same author_id, we
+		// need to store them in a slice. This prevents multiple
+		// writes to w, which is efficient
+		var filteredChirps []database.Chirp
+
+		for _, chirp := range chirps {
+			if chirp.UserID != uuid.Nil && chirp.UserID.String() == authorID {
+				filteredChirps = append(filteredChirps, chirp)
+			}
+		}
+
 		encoder := json.NewEncoder(w)
-		err = encoder.Encode(chirps)
+		err = encoder.Encode(filteredChirps)
 		if err != nil {
 			log.Println("Failed to encode response json: ", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
