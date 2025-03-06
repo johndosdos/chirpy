@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/johndosdos/chirpy/internal/app/chirpy"
+	"github.com/johndosdos/chirpy/internal/auth"
 )
 
 func WebhookHandler(cfg *chirpy.ApiConfig) http.Handler {
@@ -23,7 +24,22 @@ func WebhookHandler(cfg *chirpy.ApiConfig) http.Handler {
 
 		var req request
 
-		err := json.NewDecoder(r.Body).Decode(&req)
+		// check authorization header for API key. the API key should
+		// match the key in the .env file. if not, return a 401 Unauthorized
+		apiKey, err := auth.GetAPIKey(r.Header)
+		if err != nil {
+			log.Println("failed to get API key: ", err)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		if apiKey != cfg.PolkaKey {
+			log.Println("invalid api key: ", err)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		err = json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			log.Println("failed to decode request body: ", err)
 			http.Error(w, "Bad request", http.StatusBadRequest)
