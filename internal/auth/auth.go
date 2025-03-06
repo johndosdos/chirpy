@@ -135,3 +135,36 @@ func MakeRefreshToken() (string, error) {
 
 	return hexString, nil
 }
+
+func GetAPIKey(headers http.Header) (string, error) {
+	// 1. get authorization header
+	authHeader := headers.Get("Authorization")
+	if authHeader == "" {
+		return "", errors.New("missing authorization header")
+	}
+
+	// 2. split auth header
+	// auth header looks like this:
+	// Authorization: <auth-scheme> <authorization-parameters>
+	//
+	// in this case, we are interested in the <ApiKey> auth scheme
+	authSplit := strings.Fields(authHeader)
+	if len(authSplit) != 2 {
+		return "", fmt.Errorf("invalid authorization header format: %v", authSplit)
+	}
+
+	// 3. check auth scheme if it exists and if contains "ApiKey"
+	// if checks pass, continue
+	authScheme, authToken := authSplit[0], authSplit[1]
+
+	if authScheme == "" || authScheme != "ApiKey" {
+		return "", fmt.Errorf("unexpected authorizaton scheme or is nil: %v", authScheme)
+	}
+
+	// 4. check if auth token is not nil
+	if authToken == "" {
+		return "", errors.New("authorization token string is nil")
+	}
+
+	return authToken, nil
+}
