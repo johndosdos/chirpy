@@ -21,8 +21,6 @@ func GetChirp(cfg *chirpy.ApiConfig) http.Handler {
 			return
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-
 		// retrieve user chirp from database.
 		//
 		// because 'emit_json_tags' option in sqlc is set to true, we don't need
@@ -40,6 +38,7 @@ func GetChirp(cfg *chirpy.ApiConfig) http.Handler {
 		//
 		// WriteHeader will be implicitly called, with 200 OK, at the first
 		// successful call to w.
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		err = json.NewEncoder(w).Encode(chirp)
 		if err != nil {
