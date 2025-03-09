@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sort"
 
 	"github.com/google/uuid"
 	"github.com/johndosdos/chirpy/internal/app/chirpy"
@@ -58,6 +59,18 @@ func GetChirps(cfg *chirpy.ApiConfig) http.Handler {
 			log.Println(err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
+		}
+
+		// extract optional query parameter 'sort' from URL.
+		// sort could be 'asc' or 'desc'.
+		//
+		// If sort order is not provided, default sort order is 'asc'.
+		sortOrder := r.URL.Query().Get("sort")
+
+		if sortOrder != "" && sortOrder == "desc" {
+			sort.Slice(chirps, func(i, j int) bool {
+				return chirps[i].CreatedAt.After(chirps[j].CreatedAt)
+			})
 		}
 
 		w.Header().Set("Content-Type", "application/json")
